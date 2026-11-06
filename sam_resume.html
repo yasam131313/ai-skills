@@ -1,0 +1,1780 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SAM CHEN // HEALTHCARE FULL-STACK ARCHITECT</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    /* ==========================================================================
+       DESIGN SYSTEM TOKENS (SPACEX SPECIFICATION + HEALTHCARE TELEMETRY)
+       ========================================================================== */
+    :root {
+      --color-primary: #000000;
+      --color-canvas-night: #000000;
+      --color-canvas-night-soft: #08080a;
+      --color-canvas-card: #0d0d11;
+      --color-canvas-card-hover: #14141a;
+      --color-on-primary: #ffffff;
+      --color-on-primary-mute: #8e8e96;
+      --color-hairline-dark: #222228;
+      --color-hairline-focus: #444450;
+      
+      /* Subtle Medical Telemetry Accents */
+      --color-telemetry-cyan: #00f0ff;
+      --color-telemetry-cyan-glow: rgba(0, 240, 255, 0.15);
+      --color-status-nominal: #00e676;
+      
+      /* Typography */
+      --font-display: "Inter", "Arial Narrow", -apple-system, sans-serif;
+      --font-body: "Inter", "Microsoft JhengHei", -apple-system, sans-serif;
+      --font-mono: "JetBrains Mono", monospace;
+      
+      /* Spacing */
+      --spacing-xs: 8px;
+      --spacing-sm: 12px;
+      --spacing-md: 16px;
+      --spacing-lg: 24px;
+      --spacing-xl: 32px;
+      --spacing-xxl: 64px;
+      --spacing-huge: 96px;
+      
+      /* Radii */
+      --radius-xs: 4px;
+      --radius-sm: 8px;
+      --radius-pill: 32px;
+      
+      --transition-standard: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background-color: var(--color-canvas-night);
+      color: var(--color-on-primary);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background-color: var(--color-canvas-night);
+      overflow-x: hidden;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* Subtle background engineering coordinate grid */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+      background-size: 80px 80px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ==========================================================================
+       TYPOGRAPHY
+       ========================================================================== */
+    .display-hero {
+      font-family: var(--font-display);
+      font-size: clamp(44px, 7vw, 76px);
+      font-weight: 900;
+      line-height: 0.95;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--color-on-primary);
+    }
+
+    .display-section {
+      font-family: var(--font-display);
+      font-size: clamp(28px, 4.5vw, 48px);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      color: var(--color-on-primary);
+    }
+
+    .eyebrow-caps {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--color-on-primary-mute);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .eyebrow-caps::before {
+      content: "";
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background-color: var(--color-telemetry-cyan);
+      box-shadow: 0 0 8px var(--color-telemetry-cyan);
+      border-radius: 50%;
+    }
+
+    /* ==========================================================================
+       BUTTONS (SPACEX GHOST PILL)
+       ========================================================================== */
+    .btn-ghost-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 28px;
+      background-color: transparent;
+      border: 1px solid var(--color-on-primary);
+      border-radius: var(--radius-pill);
+      color: var(--color-on-primary);
+      font-family: var(--font-display);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1.6px;
+      text-transform: uppercase;
+      text-decoration: none;
+      cursor: pointer;
+      transition: var(--transition-standard);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-ghost-pill:hover, .btn-ghost-pill:focus-visible {
+      background-color: var(--color-on-primary);
+      color: var(--color-primary);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.25);
+    }
+
+    .btn-ghost-pill.btn-sm {
+      padding: 10px 20px;
+      font-size: 11px;
+      letter-spacing: 1.2px;
+    }
+
+    .btn-ghost-pill.btn-cyan {
+      border-color: var(--color-telemetry-cyan);
+      color: var(--color-telemetry-cyan);
+    }
+    .btn-ghost-pill.btn-cyan:hover {
+      background-color: var(--color-telemetry-cyan);
+      color: var(--color-primary);
+      box-shadow: 0 0 20px var(--color-telemetry-cyan-glow);
+    }
+
+    /* ==========================================================================
+       NAVIGATION OVERLAY
+       ========================================================================== */
+    .nav-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 72px;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--color-hairline-dark);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 clamp(20px, 4vw, 64px);
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--color-on-primary);
+    }
+
+    .brand-mark {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-mark span.accent {
+      color: var(--color-telemetry-cyan);
+    }
+
+    .nav-menu {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-link {
+      font-family: var(--font-display);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--color-on-primary-mute);
+      text-decoration: none;
+      transition: var(--transition-standard);
+      position: relative;
+      padding: 6px 0;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      color: var(--color-on-primary);
+    }
+
+    .nav-link.active::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background-color: var(--color-on-primary);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .mobile-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--color-on-primary);
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    /* ==========================================================================
+       CONTAINER & SECTIONS
+       ========================================================================== */
+    .container {
+      width: 100%;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 clamp(20px, 4vw, 48px);
+      position: relative;
+      z-index: 1;
+    }
+
+    section {
+      padding: var(--spacing-huge) 0;
+      border-bottom: 1px solid var(--color-hairline-dark);
+      position: relative;
+    }
+
+    /* ==========================================================================
+       HERO SECTION
+       ========================================================================== */
+    .hero-section {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding-top: 100px;
+      padding-bottom: 60px;
+      position: relative;
+    }
+
+    .hero-telemetry-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 6px 16px;
+      border: 1px solid var(--color-hairline-dark);
+      border-radius: var(--radius-pill);
+      background-color: rgba(255, 255, 255, 0.02);
+      margin-bottom: var(--spacing-lg);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 1px;
+      color: var(--color-on-primary-mute);
+    }
+
+    .status-pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--color-status-nominal);
+      box-shadow: 0 0 10px var(--color-status-nominal);
+      animation: pulse 2.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 230, 118, 0.7); }
+      70% { transform: scale(1.1); box-shadow: 0 0 0 8px rgba(0, 230, 118, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 230, 118, 0); }
+    }
+
+    .hero-subtitle {
+      font-family: var(--font-display);
+      font-size: clamp(16px, 2.2vw, 22px);
+      font-weight: 500;
+      letter-spacing: 0.8px;
+      color: var(--color-on-primary-mute);
+      max-width: 820px;
+      margin-top: var(--spacing-lg);
+      margin-bottom: var(--spacing-xl);
+      line-height: 1.5;
+    }
+
+    .hero-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .tag-item {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 1px;
+      padding: 4px 12px;
+      background-color: var(--color-canvas-night-soft);
+      border: 1px solid var(--color-hairline-dark);
+      border-radius: var(--radius-xs);
+      color: var(--color-on-primary);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: center;
+    }
+
+    /* TELEMETRY STATS BAR */
+    .telemetry-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background-color: var(--color-hairline-dark);
+      border: 1px solid var(--color-hairline-dark);
+      margin-top: var(--spacing-huge);
+    }
+    @media (max-width: 900px) {
+      .telemetry-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 480px) {
+      .telemetry-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .telemetry-cell {
+      background-color: var(--color-canvas-night);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: var(--transition-standard);
+    }
+
+    .telemetry-cell:hover {
+      background-color: var(--color-canvas-card);
+    }
+
+    .telemetry-metric {
+      font-family: var(--font-display);
+      font-size: 38px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: var(--color-on-primary);
+      line-height: 1;
+    }
+
+    .telemetry-metric span.cyan {
+      color: var(--color-telemetry-cyan);
+    }
+
+    .telemetry-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--color-on-primary-mute);
+    }
+
+    /* ==========================================================================
+       SECTION HEADERS
+       ========================================================================== */
+    .section-header {
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .section-desc {
+      font-size: 16px;
+      color: var(--color-on-primary-mute);
+      max-width: 680px;
+      margin-top: 12px;
+    }
+
+    /* ==========================================================================
+       MISSION LOGS / PROJECTS
+       ========================================================================== */
+    .filter-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .filter-btn {
+      background: transparent;
+      border: 1px solid var(--color-hairline-dark);
+      border-radius: var(--radius-pill);
+      padding: 8px 18px;
+      color: var(--color-on-primary-mute);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: var(--transition-standard);
+    }
+
+    .filter-btn:hover, .filter-btn.active {
+      border-color: var(--color-on-primary);
+      color: var(--color-on-primary);
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 24px;
+    }
+
+    .project-card {
+      background-color: var(--color-canvas-card);
+      border: 1px solid var(--color-hairline-dark);
+      border-radius: var(--radius-sm);
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: var(--transition-standard);
+      position: relative;
+      cursor: pointer;
+    }
+
+    .project-card:hover {
+      background-color: var(--color-canvas-card-hover);
+      border-color: var(--color-hairline-focus);
+      transform: translateY(-2px);
+    }
+
+    .project-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .project-id {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      color: var(--color-telemetry-cyan);
+    }
+
+    .project-category {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 1px;
+      color: var(--color-on-primary-mute);
+      border: 1px solid var(--color-hairline-dark);
+      padding: 2px 8px;
+      border-radius: var(--radius-xs);
+    }
+
+    .project-title {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--color-on-primary);
+      margin-bottom: 12px;
+      line-height: 1.3;
+      letter-spacing: 0.5px;
+    }
+
+    .project-excerpt {
+      font-size: 14px;
+      color: var(--color-on-primary-mute);
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .project-metrics-row {
+      display: flex;
+      gap: 16px;
+      padding: 12px 0;
+      border-top: 1px solid var(--color-hairline-dark);
+      border-bottom: 1px solid var(--color-hairline-dark);
+      margin-bottom: 20px;
+    }
+
+    .metric-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .metric-value {
+      font-family: var(--font-mono);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--color-on-primary);
+    }
+
+    .metric-key {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.5px;
+      color: var(--color-on-primary-mute);
+      text-transform: uppercase;
+    }
+
+    .project-tech-stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tech-pill {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.5px;
+      padding: 3px 8px;
+      background-color: rgba(255, 255, 255, 0.04);
+      border-radius: var(--radius-xs);
+      color: #c0c0c8;
+    }
+
+    /* ==========================================================================
+       TECHNICAL SPECIFICATIONS (SKILL MATRIX)
+       ========================================================================== */
+    .specs-layout {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+
+    .spec-block {
+      background-color: var(--color-canvas-card);
+      border: 1px solid var(--color-hairline-dark);
+      border-radius: var(--radius-sm);
+      padding: 28px;
+    }
+
+    .spec-block-title {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--color-on-primary);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 16px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--color-hairline-dark);
+    }
+
+    .spec-block-title span.mono-code {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--color-telemetry-cyan);
+    }
+
+    .spec-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .spec-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .spec-name-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .spec-level-bar {
+      height: 3px;
+      background-color: var(--color-hairline-dark);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .spec-level-fill {
+      height: 100%;
+      background-color: var(--color-on-primary);
+    }
+    .spec-level-fill.cyan {
+      background-color: var(--color-telemetry-cyan);
+    }
+
+    /* ==========================================================================
+       CAREER LOG (EXPERIENCE & BACKGROUND)
+       ========================================================================== */
+    .timeline-container {
+      position: relative;
+      padding-left: 32px;
+      border-left: 1px solid var(--color-hairline-dark);
+      margin-left: 12px;
+    }
+
+    .timeline-node {
+      position: relative;
+      margin-bottom: 56px;
+    }
+    .timeline-node:last-child {
+      margin-bottom: 0;
+    }
+
+    .timeline-dot {
+      position: absolute;
+      left: -38.5px;
+      top: 6px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background-color: var(--color-canvas-night);
+      border: 2px solid var(--color-on-primary);
+    }
+    .timeline-node.active .timeline-dot {
+      border-color: var(--color-telemetry-cyan);
+      box-shadow: 0 0 10px var(--color-telemetry-cyan);
+    }
+
+    .timeline-meta {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 1.2px;
+      color: var(--color-telemetry-cyan);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+
+    .timeline-role {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--color-on-primary);
+      margin-bottom: 4px;
+    }
+
+    .timeline-org {
+      font-size: 14px;
+      color: var(--color-on-primary-mute);
+      margin-bottom: 16px;
+    }
+
+    .timeline-bullets {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 14px;
+      color: #c4c4cc;
+      line-height: 1.6;
+    }
+
+    .timeline-bullets li {
+      position: relative;
+      padding-left: 20px;
+    }
+
+    .timeline-bullets li::before {
+      content: "—";
+      position: absolute;
+      left: 0;
+      color: var(--color-telemetry-cyan);
+      font-family: var(--font-mono);
+    }
+
+    /* ==========================================================================
+       SYSTEM TELEMETRY TERMINAL (INTERACTIVE DRAWER)
+       ========================================================================== */
+    .terminal-section {
+      background-color: var(--color-canvas-night-soft);
+      border: 1px solid var(--color-hairline-dark);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      margin-top: var(--spacing-xxl);
+    }
+
+    .terminal-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+      background-color: #0d0d12;
+      border-bottom: 1px solid var(--color-hairline-dark);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 1px;
+      color: var(--color-on-primary-mute);
+    }
+
+    .terminal-controls {
+      display: flex;
+      gap: 8px;
+    }
+    .ctrl-circle {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: #2a2a34;
+    }
+
+    .terminal-body {
+      padding: 24px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.8;
+      color: #e0e0e6;
+      max-height: 320px;
+      overflow-y: auto;
+    }
+
+    .term-line {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 4px;
+    }
+    .term-ts { color: #5a5a66; }
+    .term-tag { color: var(--color-telemetry-cyan); }
+    .term-success { color: var(--color-status-nominal); }
+    .term-highlight { color: #ffffff; font-weight: 700; }
+
+    /* ==========================================================================
+       MODAL (PROJECT DEEP-DIVE ARCHITECTURE)
+       ========================================================================== */
+    .modal-backdrop {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background-color: rgba(0, 0, 0, 0.88);
+      backdrop-filter: blur(8px);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+    .modal-backdrop.open {
+      display: flex;
+      opacity: 1;
+    }
+
+    .modal-container {
+      background-color: #0b0b0e;
+      border: 1px solid var(--color-hairline-focus);
+      border-radius: var(--radius-sm);
+      width: 100%;
+      max-width: 800px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: clamp(24px, 4vw, 44px);
+      position: relative;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9);
+      animation: modalSlide 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes modalSlide {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-close-btn {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      background: transparent;
+      border: 1px solid var(--color-hairline-dark);
+      color: var(--color-on-primary-mute);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-family: var(--font-mono);
+      font-size: 14px;
+      transition: var(--transition-standard);
+    }
+    .modal-close-btn:hover {
+      border-color: var(--color-on-primary);
+      color: var(--color-on-primary);
+    }
+
+    /* ==========================================================================
+       FOOTER
+       ========================================================================== */
+    footer {
+      padding: var(--spacing-xxl) 0;
+      border-top: 1px solid var(--color-hairline-dark);
+      background-color: var(--color-canvas-night);
+    }
+
+    .footer-grid {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 24px;
+    }
+
+    .footer-copy {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--color-on-primary-mute);
+      letter-spacing: 1px;
+    }
+
+    /* ==========================================================================
+       PRINT STYLESHEET (PROFESSIONAL 2-PAGE RESUME PDF)
+       ========================================================================== */
+    @media print {
+      body {
+        background-color: #ffffff !important;
+        color: #111111 !important;
+        font-size: 12pt;
+      }
+      body::before { display: none !important; }
+      .nav-header, .filter-bar, .hero-actions, .modal-backdrop, .terminal-section, footer {
+        display: none !important;
+      }
+      .container {
+        max-width: 100% !important;
+        padding: 0 !important;
+      }
+      section {
+        padding: 24pt 0 !important;
+        border-bottom: 1px solid #cccccc !important;
+      }
+      .display-hero {
+        color: #000000 !important;
+        font-size: 26pt !important;
+      }
+      .display-section {
+        color: #000000 !important;
+        font-size: 16pt !important;
+      }
+      .eyebrow-caps {
+        color: #444444 !important;
+      }
+      .eyebrow-caps::before {
+        background-color: #000000 !important;
+        box-shadow: none !important;
+      }
+      .hero-subtitle {
+        color: #333333 !important;
+        font-size: 11pt !important;
+      }
+      .telemetry-grid {
+        background-color: transparent !important;
+        border: 1px solid #cccccc !important;
+        grid-template-columns: repeat(4, 1fr) !important;
+        margin-top: 20pt !important;
+      }
+      .telemetry-cell {
+        background-color: #ffffff !important;
+        padding: 10pt !important;
+      }
+      .telemetry-metric {
+        color: #000000 !important;
+        font-size: 20pt !important;
+      }
+      .telemetry-metric span.cyan {
+        color: #000000 !important;
+      }
+      .telemetry-label {
+        color: #555555 !important;
+        font-size: 8pt !important;
+      }
+      .project-card, .spec-block {
+        background-color: #ffffff !important;
+        border: 1px solid #dddddd !important;
+        color: #111111 !important;
+        page-break-inside: avoid;
+        box-shadow: none !important;
+      }
+      .project-title, .timeline-role, .spec-block-title {
+        color: #000000 !important;
+      }
+      .project-excerpt, .timeline-bullets, .timeline-org {
+        color: #333333 !important;
+      }
+      .metric-value {
+        color: #000000 !important;
+      }
+      .timeline-dot {
+        border-color: #000000 !important;
+        background-color: #ffffff !important;
+      }
+      .timeline-node.active .timeline-dot {
+        border-color: #000000 !important;
+        box-shadow: none !important;
+      }
+      .timeline-meta {
+        color: #222222 !important;
+      }
+      .timeline-bullets li::before {
+        color: #000000 !important;
+      }
+      .tag-item, .tech-pill {
+        background-color: #eeeeee !important;
+        color: #000000 !important;
+        border-color: #cccccc !important;
+      }
+    }
+
+    /* ==========================================================================
+       RESPONSIVE ADJUSTMENTS
+       ========================================================================== */
+    @media (max-width: 960px) {
+      .nav-menu { display: none; }
+      .nav-menu.open {
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        top: 72px; left: 0; width: 100%;
+        background-color: #000000;
+        border-bottom: 1px solid var(--color-hairline-dark);
+        padding: 24px;
+        gap: 20px;
+      }
+      .mobile-toggle { display: block; }
+      .projects-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==========================================================================
+       TOP FIXED NAVIGATION (SPACEX OVERLAY CHROME)
+       ========================================================================== -->
+  <header class="nav-header">
+    <a href="#hero" class="nav-brand">
+      <div class="brand-mark">
+        <span>SAM</span>
+        <span class="accent">//</span>
+        <span>HEALTHCARE IT</span>
+      </div>
+    </a>
+
+    <ul class="nav-menu" id="navMenu">
+      <li><a href="#mission" class="nav-link">MISSION</a></li>
+      <li><a href="#projects" class="nav-link">SYSTEMS & LOGS</a></li>
+      <li><a href="#specs" class="nav-link">SPECIFICATIONS</a></li>
+      <li><a href="#timeline" class="nav-link">FLIGHT LOG</a></li>
+      <li><a href="#telemetry" class="nav-link">DIAGNOSTICS</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      <button class="btn-ghost-pill btn-sm" onclick="window.print()" title="列印或儲存為 PDF 履歷">
+        PRINT CV / PDF
+      </button>
+      <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle navigation">
+        ☰
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <!-- ==========================================================================
+         HERO SECTION (SPACEX HIGH CONTRAST BOLD CANVAS)
+         ========================================================================== -->
+    <section class="hero-section" id="hero">
+      <div class="container">
+        
+        <div class="hero-telemetry-badge">
+          <div class="status-pulse"></div>
+          <span>STATION: CHIAYI MEDICAL REGION // CLINICAL CORE ARCHITECT</span>
+        </div>
+
+        <h1 class="display-hero">
+          SAM CHEN
+        </h1>
+        <p class="eyebrow-caps" style="margin-top: 14px;">
+          HEALTHCARE FULL-STACK & SYSTEM ARCHITECT
+        </p>
+
+        <p class="hero-subtitle">
+          大家好，我是 Sam，來自嘉義，現於區域醫療體系資訊部門擔任全端與系統架構師。專注於現代化醫院核心系統（HIS）、跨院區 FHIR 醫療資料互通匯流排、微服務架構與毫秒級臨床生理遙測平台建置。
+        </p>
+
+        <div class="hero-tags">
+          <span class="tag-item">LOCATION: CHIAYI, TAIWAN</span>
+          <span class="tag-item">DOMAIN: HOSPITAL INFORMATION SYSTEMS (HIS)</span>
+          <span class="tag-item">STANDARDS: HL7 FHIR (R4) / DICOM</span>
+          <span class="tag-item">SECURITY: HIPAA / ISO 27001 AUDIT</span>
+          <span class="tag-item">STACK: TYPESCRIPT / REACT / GO / K8S</span>
+        </div>
+
+        <div class="hero-actions">
+          <a href="#projects" class="btn-ghost-pill">
+            EXPLORE ARCHITECTURE LOGS
+          </a>
+          <a href="#telemetry" class="btn-ghost-pill btn-cyan">
+            VIEW REALTIME TELEMETRY
+          </a>
+        </div>
+
+        <!-- TELEMETRY KEY METRICS -->
+        <div class="telemetry-grid">
+          <div class="telemetry-cell">
+            <div class="telemetry-metric">99.99<span class="cyan">%</span></div>
+            <div class="telemetry-label">HIS Core System Availability</div>
+          </div>
+          <div class="telemetry-cell">
+            <div class="telemetry-metric">15,000<span class="cyan">+</span></div>
+            <div class="telemetry-label">Daily Outpatient Transactions</div>
+          </div>
+          <div class="telemetry-cell">
+            <div class="telemetry-metric">&lt; 180<span class="cyan">ms</span></div>
+            <div class="telemetry-label">P99 Clinical API Latency</div>
+          </div>
+          <div class="telemetry-cell">
+            <div class="telemetry-metric">1.8M<span class="cyan">+</span></div>
+            <div class="telemetry-label">Standardized FHIR Records</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         MISSION PHILOSOPHY SECTION
+         ========================================================================== -->
+    <section id="mission">
+      <div class="container">
+        <div class="section-header">
+          <div class="eyebrow-caps">CORE PHILOSOPHY</div>
+          <h2 class="display-section" style="margin-top: 8px;">MISSION ARCHITECTURE</h2>
+          <p class="section-desc">
+            醫療資訊系統不容許單點故障。在毫秒之間守護病患數據安全，兼顧醫護極致流暢的使用者體驗。
+          </p>
+        </div>
+
+        <div class="specs-layout">
+          <div class="spec-block">
+            <div class="spec-block-title">
+              <span>01 / 零停機韌性設計</span>
+              <span class="mono-code">HIGH-AVAILABILITY</span>
+            </div>
+            <p style="font-size: 14px; color: var(--color-on-primary-mute); line-height: 1.7;">
+              醫療核心系統肩負門急診掛號、醫囑開立與手術排程。主導單體架構轉移至 Kubernetes 容器化微服務，落實雙活資料中心（Active-Active）災難復原演練，確保臨床服務永不斷線。
+            </p>
+          </div>
+
+          <div class="spec-block">
+            <div class="spec-block-title">
+              <span>02 / 國際醫療標準互通</span>
+              <span class="mono-code">INTEROPERABILITY</span>
+            </div>
+            <p style="font-size: 14px; color: var(--color-on-primary-mute); line-height: 1.7;">
+              深耕 HL7 v2 與 FHIR (Fast Healthcare Interoperability Resources) 規格。打造跨院區、跨檢驗（LIS）、跨影像（PACS）的統一資料中台，讓臨床數據自由安全流通。
+            </p>
+          </div>
+
+          <div class="spec-block">
+            <div class="spec-block-title">
+              <span>03 / 嚴謹資安與醫療合規</span>
+              <span class="mono-code">HIPAA & ZERO-TRUST</span>
+            </div>
+            <p style="font-size: 14px; color: var(--color-on-primary-mute); line-height: 1.7;">
+              依循 HIPAA 與 ISO 27001 規範，建置醫護人員最小授權存取機制（RBAC/ABAC）、端對端 mTLS 加密通訊與不可竄改之電子病歷存取稽核軌跡日誌。
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         SYSTEMS & MISSION LOGS (PROJECTS)
+         ========================================================================== -->
+    <section id="projects">
+      <div class="container">
+        <div class="section-header">
+          <div class="eyebrow-caps">DEPLOYED SYSTEMS</div>
+          <h2 class="display-section" style="margin-top: 8px;">CORE SYSTEM MISSIONS</h2>
+          <p class="section-desc">
+            主導與參與之大型醫療核心系統、即時遙測平台與微服務重構成果。點擊卡片檢視架構技術細節。
+          </p>
+        </div>
+
+        <!-- Filter controls -->
+        <div class="filter-bar">
+          <button class="filter-btn active" data-filter="all">ALL MISSIONS</button>
+          <button class="filter-btn" data-filter="his">CORE HIS</button>
+          <button class="filter-btn" data-filter="fhir">FHIR & INTEROP</button>
+          <button class="filter-btn" data-filter="telemetry">REAL-TIME / IOT</button>
+          <button class="filter-btn" data-filter="security">SECURITY & COMPLIANCE</button>
+        </div>
+
+        <div class="projects-grid" id="projectsGrid">
+
+          <!-- Project 1 -->
+          <article class="project-card" data-category="his" onclick="openModal('proj1')">
+            <div>
+              <div class="project-top">
+                <span class="project-id">MISSION // HIS-ENG-01</span>
+                <span class="project-category">CORE HIS</span>
+              </div>
+              <h3 class="project-title">新世代高併發門急診 HIS 核心微服務重構</h3>
+              <p class="project-excerpt">
+                針對週一及連假後龐大門診掛號與醫囑高負載，將 15 年傳統大型單體 (Monolith) 系統重構為 Event-Driven 微服務架構，徹底消除看診尖峰塞車卡頓。
+              </p>
+            </div>
+            <div>
+              <div class="project-metrics-row">
+                <div class="metric-item">
+                  <span class="metric-value">72% ↓</span>
+                  <span class="metric-key">API Response Latency</span>
+                </div>
+                <div class="metric-item">
+                  <span class="metric-value">12,000+</span>
+                  <span class="metric-key">Daily Outpatients</span>
+                </div>
+              </div>
+              <div class="project-tech-stack">
+                <span class="tech-pill">TypeScript</span>
+                <span class="tech-pill">Go</span>
+                <span class="tech-pill">React 18</span>
+                <span class="tech-pill">Redis</span>
+                <span class="tech-pill">PostgreSQL</span>
+                <span class="tech-pill">Docker/K8s</span>
+              </div>
+            </div>
+          </article>
+
+          <!-- Project 2 -->
+          <article class="project-card" data-category="fhir" onclick="openModal('proj2')">
+            <div>
+              <div class="project-top">
+                <span class="project-id">MISSION // FHIR-BUS-02</span>
+                <span class="project-category">FHIR & INTEROP</span>
+              </div>
+              <h3 class="project-title">跨院區 HL7 FHIR 智慧醫療資料交換中台</h3>
+              <p class="project-excerpt">
+                建置符合衛福部及國際規範之 FHIR R4 標準 API 伺服器與資料轉譯中繼匯流排，打通檢驗（LIS）、放射影像（PACS）與院際轉診電子病歷資料交換。
+              </p>
+            </div>
+            <div>
+              <div class="project-metrics-row">
+                <div class="metric-item">
+                  <span class="metric-value">1.8M+</span>
+                  <span class="metric-key">Standardized FHIR Bundles</span>
+                </div>
+                <div class="metric-item">
+                  <span class="metric-value">100%</span>
+                  <span class="metric-key">Interop Compliance</span>
+                </div>
+              </div>
+              <div class="project-tech-stack">
+                <span class="tech-pill">HL7 FHIR R4</span>
+                <span class="tech-pill">Node.js</span>
+                <span class="tech-pill">HAPI FHIR</span>
+                <span class="tech-pill">Kafka</span>
+                <span class="tech-pill">GraphQL</span>
+              </div>
+            </div>
+          </article>
+
+          <!-- Project 3 -->
+          <article class="project-card" data-category="telemetry" onclick="openModal('proj3')">
+            <div>
+              <div class="project-top">
+                <span class="project-id">MISSION // VITAL-IOT-03</span>
+                <span class="project-category">REAL-TIME / IOT</span>
+              </div>
+              <h3 class="project-title">加護病房與智慧病房即時生理體徵遙測 PWA</h3>
+              <p class="project-excerpt">
+                串接病床多參數生理監視器（SpO2、心電圖、血壓），利用 WebSocket 與 WebRTC 建立毫秒級雙向推播架構，打造行動護理車與醫師平板無縫儀表板。
+              </p>
+            </div>
+            <div>
+              <div class="project-metrics-row">
+                <div class="metric-item">
+                  <span class="metric-value">&lt; 80ms</span>
+                  <span class="metric-key">Telemetry Stream Latency</span>
+                </div>
+                <div class="metric-item">
+                  <span class="metric-value">250+</span>
+                  <span class="metric-key">Concurrent ICU Monitors</span>
+                </div>
+              </div>
+              <div class="project-tech-stack">
+                <span class="tech-pill">React PWA</span>
+                <span class="tech-pill">WebSockets</span>
+                <span class="tech-pill">MQTT</span>
+                <span class="tech-pill">Canvas/WebGL</span>
+                <span class="tech-pill">Go</span>
+              </div>
+            </div>
+          </article>
+
+          <!-- Project 4 -->
+          <article class="project-card" data-category="security" onclick="openModal('proj4')">
+            <div>
+              <div class="project-top">
+                <span class="project-id">MISSION // SEC-AUDIT-04</span>
+                <span class="project-category">SECURITY & COMPLIANCE</span>
+              </div>
+              <h3 class="project-title">醫療個資隱私防護與不可竄改存取稽核閘道</h3>
+              <p class="project-excerpt">
+                落實醫院內部零信任架構（Zero Trust），整合醫事人員卡 PKI / OAuth2 雙因子驗證，針對全院 5,000+ 終端之病歷讀取行為進行實時異常偵測與加密稽核留軌。
+              </p>
+            </div>
+            <div>
+              <div class="project-metrics-row">
+                <div class="metric-item">
+                  <span class="metric-value">ISO 27001</span>
+                  <span class="metric-key">Compliance Passed</span>
+                </div>
+                <div class="metric-item">
+                  <span class="metric-value">0 Breach</span>
+                  <span class="metric-key">Audit Security Record</span>
+                </div>
+              </div>
+              <div class="project-tech-stack">
+                <span class="tech-pill">OAuth2 / OIDC</span>
+                <span class="tech-pill">Open Policy Agent</span>
+                <span class="tech-pill">mTLS</span>
+                <span class="tech-pill">ELK Stack</span>
+                <span class="tech-pill">Python</span>
+              </div>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         TECHNICAL SPECIFICATIONS (SKILL MATRIX)
+         ========================================================================== -->
+    <section id="specs">
+      <div class="container">
+        <div class="section-header">
+          <div class="eyebrow-caps">CAPABILITIES MATRIX</div>
+          <h2 class="display-section" style="margin-top: 8px;">TECHNICAL SPECIFICATIONS</h2>
+          <p class="section-desc">
+            掌握現代軟體工程、全端開發、醫療國際標準與雲原生基礎架構之專業能力矩陣。
+          </p>
+        </div>
+
+        <div class="specs-layout">
+
+          <!-- Spec Group 1 -->
+          <div class="spec-block">
+            <div class="spec-block-title">
+              <span>全端工程架構</span>
+              <span class="mono-code">FULL-STACK</span>
+            </div>
+            <div class="spec-list">
+              <div class="spec-item">
+                <div class="spec-name-row">
+                  <span>TypeScript / JavaScript (ESNext)</span>
+                  <span style="font-family: var(--font-mono); color: var(--color-telemetry-cyan);">95%</span>
+                </div>
+                <div class="spec-level-bar"><div class="spec-level-fill cyan" style="width: 95%;"></div></div>
+              </div>
+              <div class="spec-item">
+                <div class="spec-name-row">
+                  <span>React / Next.js / State Management</span>
+                  <span style="font-family: var(--font-mono); color: var(--color-telemetry-cyan);">92%</span>
+                </div>
+                <div class="spec-level-bar"><div class="spec-level-fill cyan" style="width: 92%;"></div></div>
+              </div>
+              <div class="spec-item">
+                <div class="spec-name-row">
+                  <span>Node.js / Express / NestJS</span>
+                  <span style="font-family: var(--font-mono); color: var(--color-telemetry-cyan);">90%</span>
+                </div>
+                <div class="spec-level-bar"><div class="spec-level-fill cyan" style="width: 90%;"></div></div>
+              </div>
+              <div class="spec-item">
+                <div class="spec-name-row">
+                  <span>Go / Python (API & Data Engines)</span>
+                  <span style="font-family: var(--font-mono); color: var(--color-telemetry-cyan);">85%</span>
+                </div>
+                <div class="spec-level-bar"><div class="spec-level-fill cyan" style="width: 85%;"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Spec Group 2 -->
+          <div class="spec-block">
+            <div class="spec-block-title">
+              <span>醫療標準與數據中台</span>
+              <span class="mono-code">HEALTHCARE & DATA</span>
+            </div>
+            <div class="spec-list">
+              <div class="spec-item">
+                <div class="spec-name-row">
+                  <span>HL7 FHIR (R4) / RESTful API / Bundles</span>
+                  <span style="font-family: var(--font-mono); color: var(--color-telemetry-cyan);">95%</span>
+                </div>
+                <div class="spec-level-bar"><div class="spec-level-fill cyan" style="width: 95%;"></div></div>
+              </div>
+              <div class="spec-item">
+                <div class="spec-name-row">
+                  <span>HL7 v2.x Message Parsing (ADT, ORM, ORU)</span>
+                  <span style="font-family: var(--font-mono); color: var(--color-telemetry-cyan);">90%</span>
+                </div>
+                <div class="spec-level-bar"><div class="spec-level-fill cyan" style="width: 90%;"></div></div>
+              </div>
+              <div class="spec-item">
+                <div class="spec-name-row">
+                  <span>PostgreSQL / MS SQL / Redis (High-Perf)</span>
+                  <span style="font-family: var(--font-mono); color: var(--color-telemetry-cyan);">88%</span>
+                </div>
+                <div class="spec-level-bar"><div class="spec-level-fill cyan" style="width: 88%;"></div></div>
+              </div>
+              <div class="spec-item">
+                <div class="spec-name-row">
+                  <span>DICOM WADO-RS / PACS 系統介接</span>
+                  <span style="font-family: var(--font-mono); color: var(--color-telemetry-cyan);">82%</span>
+                </div>
+                <div class="spec-level-bar"><div class="spec-level-fill cyan" style="width: 82%;"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Spec Group 3 -->
+          <div class="spec-block">
+            <div class="spec-block-title">
+              <span>基礎架構與資安合規</span>
+              <span class="mono-code">INFRA & DEVOPS</span>
+            </div>
+            <div class="spec-list">
+              <div class="spec-item">
+                <div class="spec-name-row">
+                  <span>Docker / Kubernetes 容器化編排</span>
+                  <span style="font-family: var(--font-mono); color: var(--color-telemetry-cyan);">88%</span>
+                </div>
+                <div class="spec-level-bar"><div class="spec-level-fill cyan" style="width: 88%;"></div></div>
+              </div>
+              <div class="spec-item">
+                <div class="spec-name-row">
+                  <span>CI/CD 自動化部署 (GitLab CI / Actions)</span>
+                  <span style="font-family: var(--font-mono); color: var(--color-telemetry-cyan);">85%</span>
+                </div>
+                <div class="spec-level-bar"><div class="spec-level-fill cyan" style="width: 85%;"></div></div>
+              </div>
+              <div class="spec-item">
+                <div class="spec-name-row">
+                  <span>HIPAA / ISO 27001 醫療隱私合規</span>
+                  <span style="font-family: var(--font-mono); color: var(--color-telemetry-cyan);">92%</span>
+                </div>
+                <div class="spec-level-bar"><div class="spec-level-fill cyan" style="width: 92%;"></div></div>
+              </div>
+              <div class="spec-item">
+                <div class="spec-name-row">
+                  <span>Prometheus / Grafana 即時系統監控</span>
+                  <span style="font-family: var(--font-mono); color: var(--color-telemetry-cyan);">86%</span>
+                </div>
+                <div class="spec-level-bar"><div class="spec-level-fill cyan" style="width: 86%;"></div></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         CAREER FLIGHT LOG (TIMELINE)
+         ========================================================================== -->
+    <section id="timeline">
+      <div class="container">
+        <div class="section-header">
+          <div class="eyebrow-caps">CAREER TRAJECTORY</div>
+          <h2 class="display-section" style="margin-top: 8px;">MISSION FLIGHT LOG</h2>
+          <p class="section-desc">
+            累積多年的醫療體系實戰歷練，從前線系統維運跨越至現代全端架構規劃。
+          </p>
+        </div>
+
+        <div class="timeline-container">
+
+          <!-- Role 1 -->
+          <div class="timeline-node active">
+            <div class="timeline-dot"></div>
+            <div class="timeline-meta">2021 — PRESENT // CURRENT DEPLOYMENT</div>
+            <h3 class="timeline-role">資深醫療系統架構師 / 全端技術主管</h3>
+            <div class="timeline-org">嘉義區域醫療體系 資訊部門 (Healthcare IT Department, Chiayi)</div>
+            <ul class="timeline-bullets">
+              <li>統籌醫療體系核心門急診 HIS 系統現代化專案，帶領 8 人工程團隊主導微服務切分與前後端技術標準制定。</li>
+              <li>主導推動跨院區 HL7 FHIR (R4) 資料平台，成功完成衛福部醫療資訊標準驗證，促成院際電子病歷無縫互通。</li>
+              <li>建構加護病房生理體徵即時串流監測平台，降低臨床護理手動抄錄工時 60%，並提升異常數據警示反應速度。</li>
+              <li>建立自動化 CI/CD 流程與資安掃描，落實 Zero Trust 稽核機制，連續 3 年通過 ISO 27001 外部複評。</li>
+            </ul>
+          </div>
+
+          <!-- Role 2 -->
+          <div class="timeline-node">
+            <div class="timeline-dot"></div>
+            <div class="timeline-meta">2018 — 2021 // PREVIOUS MISSION</div>
+            <h3 class="timeline-role">醫療軟體全端工程師</h3>
+            <div class="timeline-org">嘉義醫療法人 資訊中心 (Healthcare IT Center, Chiayi)</div>
+            <ul class="timeline-bullets">
+              <li>開發住院照護行動化 App 及醫護行動工作站 (Mobile Nursing Station) 系統，提升醫護點滴與給藥核對正確率至 99.98%。</li>
+              <li>維運院內大型關聯式資料庫（PostgreSQL/MS SQL），進行索引優化與分頁效能調優，將報表查詢耗時由 12 秒壓降至 1.5 秒以內。</li>
+              <li>對接檢驗儀器介面（LIS）及放射科 PACS 系統，利用 Node.js 與 HL7 引擎處理每日數萬筆檢驗單與診斷報告。</li>
+            </ul>
+          </div>
+
+          <!-- Role 3 -->
+          <div class="timeline-node">
+            <div class="timeline-dot"></div>
+            <div class="timeline-meta">2016 — 2018 // FOUNDATIONAL MISSION</div>
+            <h3 class="timeline-role">軟體工程師</h3>
+            <div class="timeline-org">軟體資訊科技公司 (Enterprise Software Solutions)</div>
+            <ul class="timeline-bullets">
+              <li>負責企業級 Web 前後端系統開發，採用 React、Node.js 及 RESTful API 設計高響應式商業邏輯。</li>
+              <li>奠定扎實之資料結構、網路通訊協定（TCP/HTTP/WebSocket）及分散式快取設計底層功力。</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         INTERACTIVE REALTIME TELEMETRY / TERMINAL
+         ========================================================================== -->
+    <section id="telemetry">
+      <div class="container">
+        <div class="section-header">
+          <div class="eyebrow-caps">LIVE DIAGNOSTICS</div>
+          <h2 class="display-section" style="margin-top: 8px;">SYSTEM TELEMETRY CONSOLE</h2>
+          <p class="section-desc">
+            模擬醫療體系核心節點連線狀態、FHIR 交換閘道與臨床 API 即時遙測日誌。
+          </p>
+        </div>
+
+        <div class="terminal-section">
+          <div class="terminal-top-bar">
+            <div class="terminal-controls">
+              <div class="ctrl-circle"></div>
+              <div class="ctrl-circle"></div>
+              <div class="ctrl-circle"></div>
+            </div>
+            <div>NODE: CHIAYI-MED-GATEWAY-01 // TELEMETRY STREAM</div>
+            <div class="status-pulse" style="width: 6px; height: 6px;"></div>
+          </div>
+          <div class="terminal-body" id="terminalLogs">
+            <!-- Logs injected dynamically by JS -->
+          </div>
+        </div>
+
+        <div style="margin-top: 24px; display: flex; gap: 12px; justify-content: flex-end;">
+          <button class="btn-ghost-pill btn-sm" id="btnTestPulse">
+            PING CLINICAL NODES
+          </button>
+          <button class="btn-ghost-pill btn-sm" id="btnClearLogs">
+            CLEAR BUFFER
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==========================================================================
+       MODAL: MISSION ARCHITECTURE DEEP DIVE
+       ========================================================================== -->
+  <div class="modal-backdrop" id="projectModal" onclick="closeModalOnBackdrop(event)">
+    <div class="modal-container">
+      <button class="modal-close-btn" onclick="closeModal()">✕</button>
+      <div id="modalContent">
+        <!-- Injected via JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       FOOTER
+       ========================================================================== -->
+  <footer>
+    <div class="container footer-grid">
+      <div>
+        <div class="brand-mark" style="font-size: 14px;">
+          SAM CHEN <span class="accent">//</span> HEALTHCARE IT ARCHITECT
+        </div>
+        <div class="footer-copy" style="margin-top: 6px;">
+          DEPLOYED IN CHIAYI, TAIWAN · BUILT WITH SPACEX DESIGN ARCHITECTURE
+        </div>
+      </div>
+      <div>
+        <button class="btn-ghost-pill btn-sm" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+          RETURN TO TOP ↑
+        </button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==========================================================================
+       JAVASCRIPT: INTERACTION & TELEMETRY ENGINE
+       ========================================================================== -->
+  <script>
+    // Detailed project data for deep-dive modal
+    const projectDetails = {
+      proj1: {
+        id: "MISSION // HIS-ENG-01",
+        title: "新世代高併發門急診 HIS 核心微服務重構",
+        category: "CORE HIS ARCHITECTURE",
+        overview: "針對週一早晨及連假後每小時超過數千人次的掛號、看診與醫囑開立高峰，舊有單體系統易發生資料庫連線池耗盡與介面假死。本專案將核心業務拆解為獨立微服務，實施讀寫分離與 Redis 快取預熱。",
+        challenges: [
+          "在醫療院所 24 小時急診不中斷運作下，完成歷史 15 年龐大數據無縫遷移與平滑切換。",
+          "解決醫囑處方開立與藥品庫存扣減在毫秒級併發下的分散式事務一致性難題。"
+        ],
+        solutions: [
+          "引進 Go 與 TypeScript 構建輕量微服務，搭配 Redis Cluster 承載掛號查詢熱點，P99 延遲從 650ms 降至 175ms。",
+          "前端採用 React 18 與虛擬化滾動表格（Virtual List），使包含數百項檢驗檢查的電子病歷畫面於 0.2 秒內極速渲染完畢。"
+        ],
+        stack: ["Go", "TypeScript", "React 18", "Redis Cluster", "PostgreSQL", "Docker", "Kubernetes", "Nginx"],
+        metrics: ["API 延遲降低 72%", "支援 12,000+ 每日門診量", "零業務中斷割接上線"]
+      },
+      proj2: {
+        id: "MISSION // FHIR-BUS-02",
+        title: "跨院區 HL7 FHIR 智慧醫療資料交換中台",
+        category: "FHIR & CLINICAL INTEROPERABILITY",
+        overview: "打破醫院內部各次系統（HIS、LIS、PACS、NIS）之資料孤島，建立統一之臨床資料交換中台，嚴格符合國際標準 HL7 FHIR R4 規範，並介接次世代智慧醫療 AI 應用與健保署電子病歷互通平台。",
+        challenges: [
+          "傳統檢驗與影像系統格式繁雜（HL7 v2.x、自訂文字規格），需進行高精準度語義映射與即時格式轉譯。",
+          "處理跨院轉診海量病歷查詢，必須確保病患個資最小揭露原則與即時隱私授權校驗。"
+        ],
+        solutions: [
+          "架構以 Node.js 與 Apache Kafka 為核心的高吞吐量事件匯流排，自動將 HL7 v2 封包非同步轉譯為 FHIR JSON Resource Bundles。",
+          "實作 SMART on FHIR 授權機制，提供標準化 RESTful API，賦能外部智慧醫療研發團隊安全串接臨床數據。"
+        ],
+        stack: ["HL7 FHIR R4", "HAPI FHIR", "Kafka", "Node.js", "GraphQL", "PostgreSQL", "OAuth 2.0"],
+        metrics: ["累計轉換 180 萬+ 筆標準 FHIR 資源", "跨院區轉診病歷調閱速度提升 85%", "100% 通過合規審驗"]
+      },
+      proj3: {
+        id: "MISSION // VITAL-IOT-03",
+        title: "加護病房與智慧病房即時生理體徵遙測 PWA",
+        category: "REAL-TIME CLINICAL IOT",
+        overview: "針對加護病房（ICU）與重症病房患者，將各廠牌床邊生理監視器之 SpO2、心率、呼吸頻率、動脈血壓等波形與數值，透過物聯網閘道器即時串流至護理站中控大屏與行動護理車。",
+        challenges: [
+          "生理監視器輸出高頻率波形數據，需在低功耗行動平板上維持 60 FPS 流暢波形繪製而不卡頓發燙。",
+          "必須具備毫秒級異常生理數值主動警報演算法，杜絕警報延遲造成的臨床風險。"
+        ],
+        solutions: [
+          "以 Go 語言撰寫邊緣串流中繼器，透過 WebSockets 與二進位傳輸協定（Protobuf）壓縮資料頻寬。",
+          "前端採用 HTML5 Canvas 與 WebGL 硬體加速渲染心電圖波形，建置 PWA 離線容錯機制，即使短暫斷網亦能保持歷史緩存。"
+        ],
+        stack: ["React PWA", "WebSockets", "Go", "Canvas / WebGL", "MQTT", "Protobuf", "Tailwind CSS"],
+        metrics: ["波形串流端到端延遲 < 80ms", "支援 250+ 台床邊監視器全時併發", "醫護生命體徵抄錄工時節省 60%"]
+      },
+      proj4: {
+        id: "MISSION // SEC-AUDIT-04",
+        title: "醫療個資隱私防護與不可竄改存取稽核閘道",
+        category: "SECURITY & COMPLIANCE",
+        overview: "符合醫療法規、個人資料保護法與 ISO 27001 要求，建構全院零信任網路存取控制（ZTNA）與病歷存取稽核留軌系統，精準記錄所有醫事人員之病歷調閱歷程。",
+        challenges: [
+          "全院數千名醫護人員每日產生數百萬筆點擊與讀取記錄，傳統資料庫難以承受巨大稽核日誌寫入與即時複雜稽查檢索。",
+          "防範內部人員非授權越權調閱知名病患資料，需具備智慧異常行為分析能力。"
+        ],
+        solutions: [
+          "整合醫事人員 IC 卡與 OAuth2/OIDC 雙因子驗證，導入 Open Policy Agent (OPA) 進行微服務 API 細緻化權限控管。",
+          "利用 Elasticsearch 與 Logstash 建立分散式稽核倉儲，搭配自動化異常規則引擎，一旦偵測頻繁越權即刻推播資安主管。"
+        ],
+        stack: ["OAuth 2.0", "Open Policy Agent", "mTLS", "Elasticsearch", "Logstash", "Kibana", "Python"],
+        metrics: ["零病歷外洩與資安事故紀錄", "通過 ISO 27001 資安認證", "支援每日 500 萬+ 筆存取日誌秒級檢索"]
+      }
+    };
+
+    // Filter project cards
+    const filterBtns = document.querySelectorAll(".filter-btn");
+    const projectCards = document.querySelectorAll(".project-card");
+
+    filterBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        filterBtns.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        const category = btn.getAttribute("data-filter");
+
+        projectCards.forEach(card => {
+          if (category === "all" || card.getAttribute("data-category") === category) {
+            card.style.display = "flex";
+          } else {
+            card.style.display = "none";
+          }
+        });
+      });
+    });
+
+    // Modal Control
+    function openModal(projKey) {
+      const p = projectDetails[projKey];
+      if (!p) return;
+
+      const content = `
+        <div class="eyebrow-caps" style="margin-bottom: 8px;">${p.id}</div>
+        <div style="font-family: var(--font-mono); font-size: 11px; color: var(--color-telemetry-cyan); margin-bottom: 6px;">${p.category}</div>
+        <h2 style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: #fff; margin-bottom: 16px;">${p.title}</h2>
+        <p style="font-size: 14px; color: #c0c0c8; line-height: 1.7; margin-bottom: 24px;">${p.overview}</p>
+
+        <div style="margin-bottom: 20px;">
+          <h4 style="font-family: var(--font-display); font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 10px; text-transform: uppercase;">核心挑戰 (KEY CHALLENGES)</h4>
+          <ul style="list-style: none; padding-left: 0; font-size: 13px; color: #a0a0a8; display: flex; flex-direction: column; gap: 8px;">
+            ${p.challenges.map(c => `<li style="position: relative; padding-left: 18px;"><span style="position: absolute; left: 0; color: var(--color-telemetry-cyan); font-family: var(--font-mono);">-</span>${c}</li>`).join("")}
+          </ul>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <h4 style="font-family: var(--font-display); font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 10px; text-transform: uppercase;">技術方案與成果 (TECHNICAL ARCHITECTURE)</h4>
+          <ul style="list-style: none; padding-left: 0; font-size: 13px; color: #a0a0a8; display: flex; flex-direction: column; gap: 8px;">
+            ${p.solutions.map(s => `<li style="position: relative; padding-left: 18px;"><span style="position: absolute; left: 0; color: var(--color-status-nominal); font-family: var(--font-mono);">✔</span>${s}</li>`).join("")}
+          </ul>
+        </div>
+
+        <div style="margin-bottom: 24px;">
+          <h4 style="font-family: var(--font-display); font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 10px; text-transform: uppercase;">關鍵量化指標 (MEASURED IMPACT)</h4>
+          <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            ${p.metrics.map(m => `<div style="background: rgba(0, 240, 255, 0.06); border: 1px solid var(--color-hairline-dark); border-radius: 4px; padding: 6px 14px; font-family: var(--font-mono); font-size: 12px; color: #00f0ff;">${m}</div>`).join("")}
+          </div>
+        </div>
+
+        <div>
+          <h4 style="font-family: var(--font-display); font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 10px; text-transform: uppercase;">採用技術堆疊 (TECH STACK)</h4>
+          <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+            ${p.stack.map(st => `<span class="tech-pill">${st}</span>`).join("")}
+          </div>
+        </div>
+      `;
+
+      document.getElementById("modalContent").innerHTML = content;
+      document.getElementById("projectModal").classList.add("open");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeModal() {
+      document.getElementById("projectModal").classList.remove("open");
+      document.body.style.overflow = "auto";
+    }
+
+    function closeModalOnBackdrop(e) {
+      if (e.target.id === "projectModal") {
+        closeModal();
+      }
+    }
+
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeModal();
+    });
+
+    // Mobile nav toggle
+    const mobileToggle = document.getElementById("mobileToggle");
+    const navMenu = document.getElementById("navMenu");
+    mobileToggle.addEventListener("click", () => {
+      navMenu.classList.toggle("open");
+    });
+    document.querySelectorAll(".nav-link").forEach(link => {
+      link.addEventListener("click", () => {
+        navMenu.classList.remove("open");
+      });
+    });
+
+    // Realtime Telemetry Simulation Engine
+    const terminalLogs = document.getElementById("terminalLogs");
+    const sampleNodes = ["CHIAYI-CORE-HIS", "FHIR-GATEWAY-R4", "ICU-TELEMETRY-BUS", "PACS-DICOM-PROXY", "AUTH-ZERO-TRUST"];
+    const sampleOps = [
+      "SYNCHRONIZED 1,240 FHIR Patient resources with National Exchange Hub",
+      "ICU-Vital-Pulse: 250 connected monitors reporting normal vitals",
+      "Zero-Trust OAuth2 verification: 4,820 API tokens validated",
+      "Outpatient queue load balanced across 8 Kubernetes pods",
+      "PostgreSQL DB replication check: Latency 0.4ms, replication nominal"
+    ];
+
+    function appendLog(tag, text, isSuccess = true) {
+      const now = new Date();
+      const timeStr = now.toTimeString().split(" ")[0] + "." + String(now.getMilliseconds()).padStart(3, "0");
+      const line = document.createElement("div");
+      line.className = "term-line";
+      line.innerHTML = `
+        <span class="term-ts">[${timeStr}]</span>
+        <span class="term-tag">[${tag}]</span>
+        <span class="${isSuccess ? 'term-success' : 'term-highlight'}">${text}</span>
+      `;
+      terminalLogs.appendChild(line);
+      terminalLogs.scrollTop = terminalLogs.scrollHeight;
+    }
+
+    // Initial boot logs
+    const initialLogs = [
+      { tag: "KERNEL", text: "SAM CHEN // HEALTHCARE FULL-STACK ARCHITECT ENVIRONMENT ONLINE", isSuccess: true },
+      { tag: "LOCATION", text: "CHIAYI REGIONAL MEDICAL SYSTEM CONNECTED", isSuccess: true },
+      { tag: "FHIR-R4", text: "FHIR Core Service API listening on :8443 (mTLS Active)", isSuccess: true },
+      { tag: "K8S-CLUSTER", text: "Cluster status: 32 pods running, resource utilization 28%", isSuccess: true },
+      { tag: "SYSTEM", text: "ALL CLINICAL SYSTEMS STATUS: NOMINAL (UPTIME 99.99%)", isSuccess: true }
+    ];
+
+    initialLogs.forEach(l => appendLog(l.tag, l.text, l.isSuccess));
+
+    // Periodic simulation pulse
+    setInterval(() => {
+      const node = sampleNodes[Math.floor(Math.random() * sampleNodes.length)];
+      const op = sampleOps[Math.floor(Math.random() * sampleOps.length)];
+      appendLog(node, op, true);
+    }, 6000);
+
+    document.getElementById("btnTestPulse").addEventListener("click", () => {
+      appendLog("AUDIT-COMMAND", "MANUAL PING BROADCAST INITIATED ACROSS ALL CLINICAL NODES...", false);
+      setTimeout(() => {
+        appendLog("CHIAYI-HIS", "RESPONSE 200 OK — LATENCY 14ms", true);
+        appendLog("FHIR-ENGINE", "RESPONSE 200 OK — LATENCY 18ms", true);
+        appendLog("ICU-TELEMETRY", "RESPONSE 200 OK — LATENCY 9ms", true);
+      }, 400);
+    });
+
+    document.getElementById("btnClearLogs").addEventListener("click", () => {
+      terminalLogs.innerHTML = "";
+      appendLog("SYSTEM", "BUFFER FLUSHED. RE-ESTABLISHING TELEMETRY MONITOR...", true);
+    });
+  </script>
+</body>
+</html>
